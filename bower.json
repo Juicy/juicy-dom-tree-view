@@ -1,0 +1,30 @@
+{
+  "name": "juicy-dom-tree-view",
+  "version": "0.0.0",
+  "description": "Juicy Polymer Element, that renders the DOM tree view of given Document Fragment",
+  "license": "MIT",
+  "main": "juicy-dom-tree-view.html",
+  "keywords": [
+    "polymer",
+    "web-components",
+    "juicy",
+    "tree",
+    "DOM"    
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "preview.png",
+    "package.json",
+    "Gruntfile.json"
+  ],
+  "dependencies": {
+    "webcomponentsjs": "^0.7.2",
+    "polymer": "^1.5.0"
+  },
+  "devDependencies": {
+    "web-component-tester": "^4.2.1"
+  }
+}

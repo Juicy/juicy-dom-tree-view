@@ -1,0 +1,150 @@
+<!--
+`juicy-dom-tree-view` - Awesome, Juicy Polymer Element
+@element juicy-dom-tree-view
+version: 0.0.1
+-->
+<!-- Imports Polymer -->
+<link rel="import" href="../polymer/polymer.html">
+
+<!-- Defines element markup -->
+<dom-module id="juicy-dom-tree-view">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            p, ul { margin: 0; }
+            p { border: inset thin; }
+            :host { border: inset thin; padding: 0.5em 0.5em 0.5em 1em; color: black; min-height: 5em; font-family: monospace; background: white; }
+            :host ul { padding: 0 0 0 1em; margin: 0; }
+            :host li { padding: 0; margin: 0; list-style: none; position: relative; }
+
+            :host li li { list-style: none; }
+            :host li:first-child::before { position: absolute; top: 0; height: 0.7em; left: -0.75em; width: 0.5em; border-style: none none solid solid; content: ''; border-width: 0.1em; }
+            :host li:not(:last-child)::after { position: absolute; top: 0; bottom: -0.7em; left: -0.75em; width: 0.5em; border-style: none none solid solid; content: ''; border-width: 0.1em; }
+
+
+        </style>
+        <ul id="root"></ul>
+    </template>
+
+    <!-- Registers custom element -->
+    <script>
+    (function() {
+        Polymer({
+            is: 'juicy-dom-tree-view',
+
+            properties: {
+                doc: {
+                    type: Object,
+                    observer: '_docChanged'
+                }
+            },
+            // Fires when an instance of the element is created
+            created: function() {},
+
+            // Fires when the local DOM has been fully prepared
+            ready: function() {},
+
+            // Fires when the element was inserted into the document
+            attached: function() {},
+
+            // Fires when the element was removed from the document
+            detached: function() {},
+
+            // Fires when an attribute was added, removed, or updated
+            attributeChanged: function(name, type) {},
+
+            /**
+             * document have changed, so we chould re-render tree
+             * @param  {DocumentFragment} doc changed document
+             */
+            _docChanged: function(doc) {
+                printDOM(this.$.root, doc);
+            }
+
+        });
+
+        function printDOM(ul, node) {
+            while (ul.firstChild) ul.removeChild(ul.firstChild);
+            for (var i = 0, len = node && node.childNodes.length || 0; i < len; i += 1) {
+                var li = document.createElement('li');
+                li.className = 't' + node.childNodes[i].nodeType;
+                // add support for shady DOM elements
+                li.className += ' juicy-dom-tree-view';
+                if (node.childNodes[i].nodeType == 10) {
+                    li.appendChild(document.createTextNode('DOCTYPE: '));
+                }
+                if (node.childNodes[i].nodeName) {
+                    var code = document.createElement('code');
+                    // add support for shady DOM elements
+                    code.className += ' juicy-dom-tree-view';
+                    code.appendChild(document.createTextNode(node.childNodes[i].nodeName));
+                    li.appendChild(code);
+                } else {
+                    var span = document.createElement('span');
+                    span.appendChild(document.createTextNode("no name"));
+                    span.className = 'unnamed';
+                    // add support for shady DOM elements
+                    span.className += ' juicy-dom-tree-view';
+                    li.appendChild(span);
+                }
+                if (node.childNodes[i].nodeValue) {
+                    var span = document.createElement('span');
+                    // add support for shady DOM elements
+                    span.className += ' juicy-dom-tree-view';
+                    span.appendChild(document.createTextNode(node.childNodes[i].nodeValue));
+                    li.appendChild(document.createTextNode(': '));
+                    li.appendChild(span);
+                }
+                if (node.childNodes[i].attributes)
+                    for (var j = 0; j < node.childNodes[i].attributes.length; j += 1) {
+                        if (node.childNodes[i].attributes[j].specified) {
+                            var attName = document.createElement('code');
+                            attName.appendChild(document.createTextNode(node.childNodes[i].attributes[j].nodeName));
+                            attName.className = 'attribute name';
+                            // add support for shady DOM elements
+                            attName.className += ' juicy-dom-tree-view';
+                            var attValue = document.createElement('code');
+                            attValue.appendChild(document.createTextNode(node.childNodes[i].attributes[j].nodeValue));
+                            attValue.className = 'attribute value';
+                            // add support for shady DOM elements
+                            attValue.className += ' juicy-dom-tree-view';
+                            var att = document.createElement('span');
+                            att.className = 't2';
+                            // add support for shady DOM elements
+                            att.className += ' juicy-dom-tree-view';
+                            att.appendChild(attName);
+                            att.appendChild(document.createTextNode('="'));
+                            att.appendChild(attValue);
+                            att.appendChild(document.createTextNode('"'));
+                            li.appendChild(document.createTextNode(' '));
+                            li.appendChild(att);
+                        }
+                    }
+                if (node.childNodes[i].parentNode == node) {
+                    if (node.childNodes[i].childNodes.length) {
+                        var ul2 = document.createElement('ul');
+                        // add support for shady DOM elements
+                        ul2.className += ' juicy-dom-tree-view';
+                        li.appendChild(ul2);
+                        printDOM(ul2, node.childNodes[i]);
+                    }
+                    if (node.childNodes[i].content) {
+                        var ul2 = document.createElement('ul');
+                        li.appendChild(ul2);
+                        ul2.className = 'template';
+                        // add support for shady DOM elements
+                        ul2.className += ' juicy-dom-tree-view';
+                        printDOM(ul2, node.childNodes[i].content);
+                    }
+                } else {
+                    li.className += ' misparented';
+                }
+                ul.appendChild(li);
+            }
+        }
+    }());
+    </script>
+</dom-module>
