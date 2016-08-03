@@ -43,6 +43,12 @@ Name     | Options     | Default      | Description
 `doc`         | *DocumentFragment*    |        | Document Fragment to be rendered
 
 
+## CSS Custom properties
+
+Name                                         | Description
+---                                          | ---
+`--juicy-dom-tree-selected-background-color` | Background color of selected element
+
 ## [Contributing and Development](CONTRIBUTING.md)
 
 ## History

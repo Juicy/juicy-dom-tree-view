@@ -12,6 +12,7 @@ version: 0.0.1
         <style>
             :host {
                 display: block;
+
             }
 
             p, ul { margin: 0; }
@@ -25,6 +26,10 @@ version: 0.0.1
             :host li:not(:last-child)::after { position: absolute; top: 0; bottom: -0.7em; left: -0.75em; width: 0.5em; border-style: none none solid solid; content: ''; border-width: 0.1em; }
 
 
+            li.selected {
+                background-color: rbga(242,101,41,0.3);
+                background-color: var(--juicy-dom-tree-selected-background-color, rgba(242,101,41,0.3));
+            }
         </style>
         <ul id="root"></ul>
     </template>
@@ -39,6 +44,32 @@ version: 0.0.1
                 doc: {
                     type: Object,
                     observer: '_docChanged'
+                },
+                selectedElement:{
+                    type: Object,
+                    notify: true
+                },
+                selectedClone:{
+                    type: Object,
+                    notify: false,
+                    observer: '_selectedCloneChanged'
+                }
+            },
+            listeners: {
+                'root.tap': 'handleSelection'
+            },
+            // set properites when element is selected
+            handleSelection: function (event) {
+                this.selectedClone = getCloneElement(Polymer.dom(event).localTarget);
+                this.selectedElement = this.selectedClone._juicyDocumentElement;
+            },
+            // set Local DOM classes
+            _selectedCloneChanged: function (newVal, oldVal) {
+                if(newVal !== oldVal) {
+                    [].forEach.call(this.$.root.querySelectorAll('.selected'), function(elem) {
+                        elem.classList.remove('selected');
+                    });
+                    newVal.classList.add('selected');
                 }
             },
             // Fires when an instance of the element is created
@@ -70,6 +101,9 @@ version: 0.0.1
             while (ul.firstChild) ul.removeChild(ul.firstChild);
             for (var i = 0, len = node && node.childNodes.length || 0; i < len; i += 1) {
                 var li = document.createElement('li');
+                // GC fregile
+                li._juicyDocumentElement = node.childNodes[i];
+
                 li.className = 't' + node.childNodes[i].nodeType;
                 // add support for shady DOM elements
                 li.className += ' juicy-dom-tree-view';
@@ -144,6 +178,13 @@ version: 0.0.1
                 }
                 ul.appendChild(li);
             }
+        }
+        function getCloneElement(element){
+            var clone = element;
+            while(clone && !clone._juicyDocumentElement){
+                clone = clone.parentNode;
+            }
+            return clone;
         }
     }());
     </script>
