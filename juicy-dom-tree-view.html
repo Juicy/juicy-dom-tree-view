@@ -45,47 +45,63 @@ version: 0.0.1
                     type: Object,
                     observer: '_docChanged'
                 },
-                selectedElement:{
+                selectedElements:{
                     type: Object,
-                    notify: true
+                    notify: true,
+                    value: function(){return []}
                 },
-                selectedClone:{
+                selectedClones:{
                     type: Object,
                     notify: false,
-                    observer: '_selectedCloneChanged'
+                    value: function(){return []}
                 }
             },
+            observers: [
+                // 'selectedElementsAddedOrRemoved(selectedElements.splices)',
+                // 'selectedClonesAddedOrRemoved(selectedClones.splices)'
+            ],
             listeners: {
-                'root.tap': 'handleSelection'
+                'root.tap': 'elementTapped'
             },
             // set properites when element is selected
-            handleSelection: function (event) {
-                this.selectedClone = getCloneElement(Polymer.dom(event).localTarget);
-                this.selectedElement = this.selectedClone._juicyDocumentElement;
-            },
-            // set Local DOM classes
-            _selectedCloneChanged: function (newVal, oldVal) {
-                if(newVal !== oldVal) {
-                    [].forEach.call(this.$.root.querySelectorAll('.selected'), function(elem) {
-                        elem.classList.remove('selected');
-                    });
-                    newVal.classList.add('selected');
+            elementTapped: function (event) {
+                let target = Polymer.dom(event).localTarget;
+                let tapped = getCloneElement(target);
+                let isSelected = this.selectedElements.indexOf(tapped._juicyDocumentElement);
+                if(isSelected > -1){
+                    tapped.classList.remove('selected');
+                    this.splice('selectedElements', isSelected, 1);
+                    this.splice('selectedClones', isSelected, 1);
+                } else {
+                    tapped.classList.add('selected');
+                    this.push('selectedElements', tapped._juicyDocumentElement);
+                    this.push('selectedClones', tapped);
                 }
             },
-            // Fires when an instance of the element is created
-            created: function() {},
-
-            // Fires when the local DOM has been fully prepared
-            ready: function() {},
-
-            // Fires when the element was inserted into the document
-            attached: function() {},
-
-            // Fires when the element was removed from the document
-            detached: function() {},
-
-            // Fires when an attribute was added, removed, or updated
-            attributeChanged: function(name, type) {},
+            // selectedClonesAddedOrRemoved: function(changeRecord) {
+            //   if (changeRecord) {
+            //     changeRecord.indexSplices.forEach(function(s) {
+            //       s.removed.forEach(function(user) {
+            //         console.log(user.name + ' was removed');
+            //       });
+            //       for (var i=0; i<s.addedCount; i++) {
+            //         var index = s.index + i;
+            //         var newUser = s.object[index];
+            //         console.log('User ' + newUser.name + ' added at index ' + index);
+            //       }
+            //     }, this);
+            //   }
+            // },
+            // // set Local DOM classes
+            // _selectedClonesChanged: function (newVal, oldVal) {
+            //     debugger
+            //     if(newVal !== oldVal) {
+            //         [].forEach.call(this.$.root.querySelectorAll('.selected'), function(elem) {
+            //             elem.classList.remove('selected');
+            //         });
+            //         newVal.classList.add('selected');
+            //     }
+            // },
 
             /**
              * document have changed, so we chould re-render tree
