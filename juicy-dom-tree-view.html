@@ -114,16 +114,16 @@ version: 0.0.1
             },
             _multipleChanged: function(){
                 if(!this.multiple){
-                    const selectedClone = this.selectedClones[0];
-                    Array.prototype.forEach.call(this.$.root.querySelectorAll('.selected'), function(elem) {
-                        if(elem !== selectedClone){
-                            elem.classList.remove('selected');
-                        }
-                    });
+                    removeSelection(this.$root, this.selectedClones[0]);
                     this.splice('selectedElements', 1);
                     this.splice('selectedClones', 1);
                 }
 
+            },
+            clearSelection: function(){
+                removeSelection(this.$.root);
+                this.splice('selectedElements', 0);
+                this.splice('selectedClones', 0);
             },
             // selectedClonesAddedOrRemoved: function(changeRecord) {
             //   if (changeRecord) {
@@ -252,6 +252,13 @@ version: 0.0.1
                 clone = clone.parentNode;
             }
             return clone;
+        }
+        function removeSelection(root, except){
+            Array.prototype.forEach.call(root.querySelectorAll('.selected'), function(elem) {
+                if(elem !== except){
+                    elem.classList.remove('selected');
+                }
+            });
         }
     }());
     </script>
