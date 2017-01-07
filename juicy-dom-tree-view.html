@@ -54,6 +54,11 @@ version: 0.0.1
                     type: Object,
                     notify: false,
                     value: function(){return []}
+                },
+                multiple: {
+                    type: Boolean,
+                    falue: false,
+                    observer: '_multipleChanged'
                 }
             },
             observers: [
@@ -63,6 +68,16 @@ version: 0.0.1
             listeners: {
                 'root.tap': 'elementTapped'
             },
+            /**
+             * Helper getter to support non-multiple mode
+             * For backward compatibility
+             * @deprecated
+             * @return first from selectedElements
+            */
+            get selectedElement(){
+                return this.selectedElements[0];
+            },
+
             // set properites when element is selected
             elementTapped: function (event) {
                 let target = Polymer.dom(event).localTarget;
@@ -73,10 +88,28 @@ version: 0.0.1
                     this.splice('selectedElements', isSelected, 1);
                     this.splice('selectedClones', isSelected, 1);
                 } else {
+                    if(!this.multiple){
+                        this.selectedClones[0] && this.selectedClones[0].classList.remove('selected');
+                        this.splice('selectedElements', 0, 1);
+                        this.splice('selectedClones', 0, 1);
+                    }
                     tapped.classList.add('selected');
                     this.push('selectedElements', tapped._juicyDocumentElement);
                     this.push('selectedClones', tapped);
                 }
+            },
+            _multipleChanged: function(){
+                if(!this.multiple){
+                    const selectedClone = this.selectedClones[0];
+                    Array.prototype.forEach.call(this.$.root.querySelectorAll('.selected'), function(elem) {
+                        if(elem !== selectedClone){
+                            elem.classList.remove('selected');
+                        }
+                    });
+                    this.splice('selectedElements', 1);
+                    this.splice('selectedClones', 1);
+                }
+
             },
             // selectedClonesAddedOrRemoved: function(changeRecord) {
             //   if (changeRecord) {
