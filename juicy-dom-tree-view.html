@@ -141,12 +141,12 @@ version: 0.0.1
              * @param  {DocumentFragment} doc changed document
              */
             _docChanged: function(doc) {
-                printDOM(this.$.root, doc);
+                printDOM(this.$.root, doc, this.selectedElements);
             }
 
         });
 
-        function printDOM(ul, node) {
+        function printDOM(ul, node, selectedElements) {
             while (ul.firstChild) ul.removeChild(ul.firstChild);
             for (var i = 0, len = node && node.childNodes.length || 0; i < len; i += 1) {
                 var li = document.createElement('li');
@@ -156,6 +156,10 @@ version: 0.0.1
                 li.className = 't' + node.childNodes[i].nodeType;
                 // add support for shady DOM elements
                 li.className += ' juicy-dom-tree-view';
+                // re-select clones for previously selected elements
+                if(selectedElements.indexOf(li._juicyDocumentElement) > -1 ){
+                    li.className += ' selected';
+                }
                 if (node.childNodes[i].nodeType == 10) {
                     li.appendChild(document.createTextNode('DOCTYPE: '));
                 }
