@@ -71,11 +71,25 @@ version: 0.0.1
             /**
              * Helper getter to support non-multiple mode
              * For backward compatibility
+             * @readonly
              * @deprecated
              * @return first from selectedElements
             */
             get selectedElement(){
                 return this.selectedElements[0];
+            },
+            /**
+             * Helper getter to retrieve selected elements in tree order
+             * @readonly
+             * @return {Array} selectedElements sorted in tree order (querySelectorAll order)
+             */
+            get selectedElementInTreeOrder(){
+                return Array.prototype.map.call(
+                    this.$.root.querySelectorAll('.selected'),
+                    function(element){
+                        return element._juicyDocumentElement;
+                    }
+                );
             },
 
             // set properites when element is selected
