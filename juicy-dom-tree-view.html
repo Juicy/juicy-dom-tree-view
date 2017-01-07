@@ -171,7 +171,7 @@ version: 0.0.1
                 // add support for shady DOM elements
                 li.className += ' juicy-dom-tree-view';
                 // re-select clones for previously selected elements
-                if(selectedElements.indexOf(li._juicyDocumentElement) > -1 ){
+                if(selectedElements && selectedElements.indexOf(li._juicyDocumentElement) > -1 ){
                     li.className += ' selected';
                 }
                 if (node.childNodes[i].nodeType == 10) {
