@@ -45,59 +45,122 @@ version: 0.0.1
                     type: Object,
                     observer: '_docChanged'
                 },
-                selectedElement:{
+                selectedElements:{
                     type: Object,
-                    notify: true
+                    notify: true,
+                    value: function(){return []}
                 },
-                selectedClone:{
+                selectedClones:{
                     type: Object,
                     notify: false,
-                    observer: '_selectedCloneChanged'
+                    value: function(){return []}
+                },
+                multiple: {
+                    type: Boolean,
+                    falue: false,
+                    observer: '_multipleChanged'
                 }
             },
+            observers: [
+                // 'selectedElementsAddedOrRemoved(selectedElements.splices)',
+                // 'selectedClonesAddedOrRemoved(selectedClones.splices)'
+            ],
             listeners: {
-                'root.tap': 'handleSelection'
+                'root.tap': 'elementTapped'
             },
+            /**
+             * Helper getter to support non-multiple mode
+             * For backward compatibility
+             * @readonly
+             * @deprecated
+             * @return first from selectedElements
+            */
+            get selectedElement(){
+                return this.selectedElements[0];
+            },
+            /**
+             * Helper getter to retrieve selected elements in tree order
+             * @readonly
+             * @return {Array} selectedElements sorted in tree order (querySelectorAll order)
+             */
+            get selectedElementInTreeOrder(){
+                return Array.prototype.map.call(
+                    this.$.root.querySelectorAll('.selected'),
+                    function(element){
+                        return element._juicyDocumentElement;
+                    }
+                );
+            },
+
             // set properites when element is selected
-            handleSelection: function (event) {
-                this.selectedClone = getCloneElement(Polymer.dom(event).localTarget);
-                this.selectedElement = this.selectedClone._juicyDocumentElement;
-            },
-            // set Local DOM classes
-            _selectedCloneChanged: function (newVal, oldVal) {
-                if(newVal !== oldVal) {
-                    [].forEach.call(this.$.root.querySelectorAll('.selected'), function(elem) {
-                        elem.classList.remove('selected');
-                    });
-                    newVal.classList.add('selected');
+            elementTapped: function (event) {
+                let target = Polymer.dom(event).localTarget;
+                let tapped = getCloneElement(target);
+                let isSelected = this.selectedElements.indexOf(tapped._juicyDocumentElement);
+                if(isSelected > -1){
+                    tapped.classList.remove('selected');
+                    this.splice('selectedElements', isSelected, 1);
+                    this.splice('selectedClones', isSelected, 1);
+                } else {
+                    if(!this.multiple){
+                        this.selectedClones[0] && this.selectedClones[0].classList.remove('selected');
+                        this.splice('selectedElements', 0, 1);
+                        this.splice('selectedClones', 0, 1);
+                    }
+                    tapped.classList.add('selected');
+                    this.push('selectedElements', tapped._juicyDocumentElement);
+                    this.push('selectedClones', tapped);
                 }
             },
-            // Fires when an instance of the element is created
-            created: function() {},
+            _multipleChanged: function(){
+                if(!this.multiple){
+                    removeSelection(this.$root, this.selectedClones[0]);
+                    this.splice('selectedElements', 1);
+                    this.splice('selectedClones', 1);
+                }
 
-            // Fires when the local DOM has been fully prepared
-            ready: function() {},
-
-            // Fires when the element was inserted into the document
-            attached: function() {},
-
-            // Fires when the element was removed from the document
-            detached: function() {},
-
-            // Fires when an attribute was added, removed, or updated
-            attributeChanged: function(name, type) {},
+            },
+            clearSelection: function(){
+                removeSelection(this.$.root);
+                this.splice('selectedElements', 0);
+                this.splice('selectedClones', 0);
+            },
+            // selectedClonesAddedOrRemoved: function(changeRecord) {
+            //   if (changeRecord) {
+            //     changeRecord.indexSplices.forEach(function(s) {
+            //       s.removed.forEach(function(user) {
+            //         console.log(user.name + ' was removed');
+            //       });
+            //       for (var i=0; i<s.addedCount; i++) {
+            //         var index = s.index + i;
+            //         var newUser = s.object[index];
+            //         console.log('User ' + newUser.name + ' added at index ' + index);
+            //       }
+            //     }, this);
+            //   }
+            // },
+            // // set Local DOM classes
+            // _selectedClonesChanged: function (newVal, oldVal) {
+            //     debugger
+            //     if(newVal !== oldVal) {
+            //         [].forEach.call(this.$.root.querySelectorAll('.selected'), function(elem) {
+            //             elem.classList.remove('selected');
+            //         });
+            //         newVal.classList.add('selected');
+            //     }
+            // },
 
             /**
              * document have changed, so we chould re-render tree
              * @param  {DocumentFragment} doc changed document
              */
             _docChanged: function(doc) {
-                printDOM(this.$.root, doc);
+                printDOM(this.$.root, doc, this.selectedElements);
             }
 
         });
 
-        function printDOM(ul, node) {
+        function printDOM(ul, node, selectedElements) {
             while (ul.firstChild) ul.removeChild(ul.firstChild);
             for (var i = 0, len = node && node.childNodes.length || 0; i < len; i += 1) {
                 var li = document.createElement('li');
@@ -107,6 +170,10 @@ version: 0.0.1
                 li.className = 't' + node.childNodes[i].nodeType;
                 // add support for shady DOM elements
                 li.className += ' juicy-dom-tree-view';
+                // re-select clones for previously selected elements
+                if(selectedElements && selectedElements.indexOf(li._juicyDocumentElement) > -1 ){
+                    li.className += ' selected';
+                }
                 if (node.childNodes[i].nodeType == 10) {
                     li.appendChild(document.createTextNode('DOCTYPE: '));
                 }
@@ -185,6 +252,13 @@ version: 0.0.1
                 clone = clone.parentNode;
             }
             return clone;
+        }
+        function removeSelection(root, except){
+            Array.prototype.forEach.call(root.querySelectorAll('.selected'), function(elem) {
+                if(elem !== except){
+                    elem.classList.remove('selected');
+                }
+            });
         }
     }());
     </script>
