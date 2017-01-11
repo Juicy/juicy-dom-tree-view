@@ -1,4 +1,4 @@
-# &lt;juicy-dom-tree-view&gt; [![Build Status](https://travis-ci.org/Juicy/juicy-dom-tree-view.svg?branch=gh-pages)](https://travis-ci.org/Juicy/juicy-dom-tree-view)
+# &lt;juicy-dom-tree-view&gt; [![Build Status](https://travis-ci.org/Juicy/juicy-dom-tree-view.svg?branch=master)](https://travis-ci.org/Juicy/juicy-dom-tree-view)
 
 > Juicy Polymer Element, that renders a tree view of given Document Fragment
 
@@ -14,7 +14,7 @@ Install the component using [Bower](http://bower.io/):
 $ bower install juicy-dom-tree-view --save
 ```
 
-Or [download as ZIP](https://github.com/Juicy/juicy-dom-tree-view/archive/gh-pages.zip).
+Or [download as ZIP](https://github.com/Juicy/juicy-dom-tree-view/archive/master.zip).
 
 ## Usage
 
