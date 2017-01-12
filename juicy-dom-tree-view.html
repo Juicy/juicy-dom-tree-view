@@ -5,6 +5,7 @@ version: 0.0.1
 -->
 <!-- Imports Polymer -->
 <link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 
 <!-- Defines element markup -->
 <dom-module id="juicy-dom-tree-view">
@@ -57,10 +58,24 @@ version: 0.0.1
                 },
                 multiple: {
                     type: Boolean,
-                    falue: false,
+                    value: false,
                     observer: '_multipleChanged'
+                },
+                /**
+                 * Scope for Polymer.IronA11yKeysBehavior
+                 * Listen only keyevents for this node
+                 * @type {Object}
+                 */
+                keyEventTarget: {
+                    type: Object,
+                    value: function() {
+                        return this;
+                    }
                 }
             },
+            behaviors: [
+                Polymer.IronA11yKeysBehavior
+            ],
             observers: [
                 // 'selectedElementsAddedOrRemoved(selectedElements.splices)',
                 // 'selectedClonesAddedOrRemoved(selectedClones.splices)'
@@ -92,24 +107,49 @@ version: 0.0.1
                 );
             },
 
-            // set properites when element is selected
+            /**
+             * Sets properites when element is selected
+             * @param  {Event} event
+             */
             elementTapped: function (event) {
                 let target = Polymer.dom(event).localTarget;
                 let tapped = getCloneElement(target);
                 let isSelected = this.selectedElements.indexOf(tapped._juicyDocumentElement);
-                if(isSelected > -1){
-                    tapped.classList.remove('selected');
-                    this.splice('selectedElements', isSelected, 1);
-                    this.splice('selectedClones', isSelected, 1);
-                } else {
-                    if(!this.multiple){
-                        this.selectedClones[0] && this.selectedClones[0].classList.remove('selected');
-                        this.splice('selectedElements', 0, 1);
-                        this.splice('selectedClones', 0, 1);
+                if(this.multiple){
+                    if(this._ctrlPressed){
+                        if(isSelected > -1){
+                            tapped.classList.remove('selected');
+                            this.splice('selectedElements', isSelected, 1);
+                            this.splice('selectedClones', isSelected, 1);
+                        } else {
+                            tapped.classList.add('selected');
+                            this.push('selectedElements', tapped._juicyDocumentElement);
+                            this.push('selectedClones', tapped);
+                        }
+                    } else {
+                        if(isSelected > -1 && this.selectedElements.length === 1){
+                            tapped.classList.remove('selected');
+                            this.splice('selectedElements', isSelected, 1);
+                            this.splice('selectedClones', isSelected, 1);
+                        } else {
+                            removeSelection(this.$.root);
+                            tapped.classList.add('selected');
+                            this.splice('selectedElements', 0, this.selectedElements.length, tapped._juicyDocumentElement);
+                            this.splice('selectedClones', 0, this.selectedClones.length, tapped);
+                        }
                     }
-                    tapped.classList.add('selected');
-                    this.push('selectedElements', tapped._juicyDocumentElement);
-                    this.push('selectedClones', tapped);
+
+                } else {
+                    if(isSelected > -1){
+                        tapped.classList.remove('selected');
+                        this.splice('selectedElements', isSelected, 1);
+                        this.splice('selectedClones', isSelected, 1);
+                    } else {
+                        this.selectedClones[0] && this.selectedClones[0].classList.remove('selected');
+                        tapped.classList.add('selected');
+                        this.splice('selectedElements', 0, tapped._juicyDocumentElement);
+                        this.splice('selectedClones', 0, tapped);
+                    }
                 }
             },
             _multipleChanged: function(){
@@ -156,6 +196,28 @@ version: 0.0.1
              */
             _docChanged: function(doc) {
                 printDOM(this.$.root, doc, this.selectedElements);
+            },
+            /**
+             * Attach key bindings for ctrl flag
+             * @type {Object}
+             */
+            keyBindings: {
+                // looks dummy doesn't it?
+                'ctrl+control:keydown': '_updatePressed',
+                'control:keyup': '_updatePressed'
+            },
+            /**
+             * Flag reflecgin whether Ctrl key is pressed or not,
+             * for folder-like multiselect
+             * @type {Boolean}
+             */
+            _ctrlPressed: false,
+            /**
+             * Updated #_ctrlPressed flag
+             * @param  {Object} event Polymer keyEvent
+             */
+            _updatePressed: function(event) {
+                this._ctrlPressed = event.detail.ctrlKey;
             }
 
         });

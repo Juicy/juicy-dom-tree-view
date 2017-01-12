@@ -9,7 +9,7 @@
     "web-components",
     "juicy",
     "tree",
-    "DOM"    
+    "DOM"
   ],
   "ignore": [
     "**/.*",
@@ -22,7 +22,8 @@
   ],
   "dependencies": {
     "webcomponentsjs": "^0.7.2",
-    "polymer": "^1.5.0"
+    "polymer": "^1.5.0",
+    "iron-a11y-keys-behavior": "^1.1.9"
   },
   "devDependencies": {
     "web-component-tester": "^4.2.1"
