@@ -12,7 +12,13 @@ version: 0.0.1
         <style>
             :host {
                 display: block;
-
+            }
+            code {
+                background-color: #e6e6e6;
+                color: black;
+            }
+            code.attribute {
+                background-color: #transparent;
             }
 
             p, ul { margin: 0; }
@@ -59,6 +65,14 @@ version: 0.0.1
                     type: Boolean,
                     value: false,
                     observer: '_multipleChanged'
+                },
+                fakeV1: {
+                    type: Boolean,
+                    value: false
+                },
+                wrappedContent: {
+                    type: Boolean,
+                    value: false
                 }
             },
             observers: [
@@ -181,14 +195,19 @@ version: 0.0.1
              * @param  {DocumentFragment} doc changed document
              */
             _docChanged: function(doc) {
-                printDOM(this.$.root, doc, this.selectedElements);
+                printDOM(this.$.root, doc, this.selectedElements, this.fakeV1, this.wrappedContent);
             }
 
         });
 
-        function printDOM(ul, node, selectedElements) {
+        function printDOM(ul, node, selectedElements, fakeV1, wrappedContent) {
             while (ul.firstChild) ul.removeChild(ul.firstChild);
             for (var i = 0, len = node && node.childNodes.length || 0; i < len; i += 1) {
+                if(wrappedContent && node.childNodes[i].parentNode &&
+                    node.childNodes[i].parentNode.hasAttribute &&
+                    node.childNodes[i].parentNode.hasAttribute('content-wrapper')){
+                    continue;
+                }
                 var li = document.createElement('li');
                 // GC fregile
                 li._juicyDocumentElement = node.childNodes[i];
@@ -207,7 +226,19 @@ version: 0.0.1
                     var code = document.createElement('code');
                     // add support for shady DOM elements
                     code.className += ' juicy-dom-tree-view';
-                    code.appendChild(document.createTextNode(node.childNodes[i].nodeName));
+                    let nodeName;
+                    // TODO: clean it as we are spreading internal details among elements
+                    if(wrappedContent && node.childNodes[i].nodeName === 'DIV' && node.childNodes[i].hasAttribute('content-wrapper')){
+                        nodeName = 'SLOT';
+                    } else if(fakeV1 && node.childNodes[i].nodeName === 'CONTENT'){
+                        // pretend  it's SD v1
+                        nodeName =  'SLOT';
+                    } else {
+                        nodeName = node.childNodes[i].nodeName;
+                    }
+                    code.appendChild(document.createTextNode(nodeName));
+                    li.appendChild(code);
+                    // hide wrapped slots
                     li.appendChild(code);
                 } else {
                     var span = document.createElement('span');
@@ -228,13 +259,24 @@ version: 0.0.1
                 if (node.childNodes[i].attributes)
                     for (var j = 0; j < node.childNodes[i].attributes.length; j += 1) {
                         if (node.childNodes[i].attributes[j].specified) {
+
+                            // pretend we are SD v1
+                            let attrNameContent = node.childNodes[i].attributes[j].nodeName;
+                            if(wrappedContent && attrNameContent === 'content-wrapper'){
+                                continue;
+                            }
+                            let attrValueContent = node.childNodes[i].attributes[j].nodeValue;
+                            if(fakeV1 && attrNameContent === 'select' && node.childNodes[i].nodeName === 'CONTENT' ){
+                                attrNameContent = 'name';
+                                attrValueContent = attrValueContent.replace(/\[slot=['"](.*)['"]\]/,'$1');
+                            }
                             var attName = document.createElement('code');
-                            attName.appendChild(document.createTextNode(node.childNodes[i].attributes[j].nodeName));
+                            attName.appendChild(document.createTextNode(attrNameContent));
                             attName.className = 'attribute name';
                             // add support for shady DOM elements
                             attName.className += ' juicy-dom-tree-view';
                             var attValue = document.createElement('code');
-                            attValue.appendChild(document.createTextNode(node.childNodes[i].attributes[j].nodeValue));
+                            attValue.appendChild(document.createTextNode(attrValueContent));
                             attValue.className = 'attribute value';
                             // add support for shady DOM elements
                             attValue.className += ' juicy-dom-tree-view';
@@ -256,7 +298,7 @@ version: 0.0.1
                         // add support for shady DOM elements
                         ul2.className += ' juicy-dom-tree-view';
                         li.appendChild(ul2);
-                        printDOM(ul2, node.childNodes[i]);
+                        printDOM(ul2, node.childNodes[i], selectedElements, fakeV1, wrappedContent);
                     }
                     if (node.childNodes[i].content) {
                         var ul2 = document.createElement('ul');
@@ -264,7 +306,7 @@ version: 0.0.1
                         ul2.className = 'template';
                         // add support for shady DOM elements
                         ul2.className += ' juicy-dom-tree-view';
-                        printDOM(ul2, node.childNodes[i].content);
+                        printDOM(ul2, node.childNodes[i].content, selectedElements, fakeV1, wrappedContent);
                     }
                 } else {
                     li.className += ' misparented';

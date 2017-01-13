@@ -37,6 +37,14 @@
             <h3><code>&lt;juicy-dom-tree-view multiple&gt;</code></h3>
             <juicy-dom-tree-view multiple></juicy-dom-tree-view>
         </div>
+        <div>
+            <h3><code>&lt;juicy-dom-tree-view fake-v1&gt;</code></h3>
+            <juicy-dom-tree-view fake-v1></juicy-dom-tree-view>
+        </div>
+        <div>
+            <h3><code>&lt;juicy-dom-tree-view fake-v1 wrapped-content&gt;</code></h3>
+            <juicy-dom-tree-view fake-v1 wrapped-content></juicy-dom-tree-view>
+        </div>
     </div>
 
     <div class="examples">
@@ -67,7 +75,7 @@
     <content select="[slot='App/0']"></content>
 </div>
 <content select="[slot='App/1']"></content>
-<div style="display: flex; justify-content: flex-end;">
+<div style="display: flex; justify-content: flex-end;" content-wrapper>
     <content select="[slot='App/defined-slot-name']"></content>
 </div>
 shadow's inline text`;

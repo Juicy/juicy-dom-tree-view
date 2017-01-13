@@ -38,10 +38,12 @@ Or [download as ZIP](https://github.com/Juicy/juicy-dom-tree-view/archive/master
 
 ## Attributes/Properties
 
-Name       | Options               | Default    | Description
----        | ---                   | ---        | ---
-`doc`      | *DocumentFragment*    |            | Document Fragment to be rendered
-`multiple` | *Boolean*             | `false`    | Should multi select (with ctrl+click) be available
+Name              | Options            | Default | Description
+---               | ---                | ---     | ---
+`doc`             | *DocumentFragment* |         | Document Fragment to be rendered
+`multiple`        | *Boolean*          | `false` | Should multi select (with ctrl+click) be available
+`fake-v1`         | *Boolean*          | `false` | Should we fake Shadow DOM v1 and render `<content>` as `<slot>`
+`wrapped-content` | *Boolean*          | `false` | Should we support `<cotnent>` tags wrapped for styling with `<div content-wrapper>` and display it as single `<slot>` for simplicity.
 
 
 ## CSS Custom properties
