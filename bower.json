@@ -22,8 +22,7 @@
   ],
   "dependencies": {
     "webcomponentsjs": "^0.7.2",
-    "polymer": "^1.5.0",
-    "iron-a11y-keys-behavior": "^1.1.9"
+    "polymer": "^1.5.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.2.1"

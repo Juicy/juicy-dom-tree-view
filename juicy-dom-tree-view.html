@@ -5,7 +5,6 @@ version: 0.0.1
 -->
 <!-- Imports Polymer -->
 <link rel="import" href="../polymer/polymer.html">
-<link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 
 <!-- Defines element markup -->
 <dom-module id="juicy-dom-tree-view">
@@ -32,7 +31,7 @@ version: 0.0.1
                 background-color: var(--juicy-dom-tree-selected-background-color, rgba(242,101,41,0.3));
             }
         </style>
-        <ul id="root"></ul>
+        <ul id="root"><li>a</ul>
     </template>
 
     <!-- Registers custom element -->
@@ -60,22 +59,8 @@ version: 0.0.1
                     type: Boolean,
                     value: false,
                     observer: '_multipleChanged'
-                },
-                /**
-                 * Scope for Polymer.IronA11yKeysBehavior
-                 * Listen only keyevents for this node
-                 * @type {Object}
-                 */
-                keyEventTarget: {
-                    type: Object,
-                    value: function() {
-                        return this;
-                    }
                 }
             },
-            behaviors: [
-                Polymer.IronA11yKeysBehavior
-            ],
             observers: [
                 // 'selectedElementsAddedOrRemoved(selectedElements.splices)',
                 // 'selectedClonesAddedOrRemoved(selectedClones.splices)'
@@ -112,11 +97,12 @@ version: 0.0.1
              * @param  {Event} event
              */
             elementTapped: function (event) {
+                let ctrlPressed = event.detail.sourceEvent.ctrlKey;
                 let target = Polymer.dom(event).localTarget;
                 let tapped = getCloneElement(target);
                 let isSelected = this.selectedElements.indexOf(tapped._juicyDocumentElement);
                 if(this.multiple){
-                    if(this._ctrlPressed){
+                    if(ctrlPressed){
                         if(isSelected > -1){
                             tapped.classList.remove('selected');
                             this.splice('selectedElements', isSelected, 1);
@@ -154,7 +140,7 @@ version: 0.0.1
             },
             _multipleChanged: function(){
                 if(!this.multiple){
-                    removeSelection(this.$root, this.selectedClones[0]);
+                    removeSelection(this.$.root, this.selectedClones[0]);
                     this.splice('selectedElements', 1);
                     this.splice('selectedClones', 1);
                 }
@@ -196,28 +182,6 @@ version: 0.0.1
              */
             _docChanged: function(doc) {
                 printDOM(this.$.root, doc, this.selectedElements);
-            },
-            /**
-             * Attach key bindings for ctrl flag
-             * @type {Object}
-             */
-            keyBindings: {
-                // looks dummy doesn't it?
-                'ctrl+control:keydown': '_updatePressed',
-                'control:keyup': '_updatePressed'
-            },
-            /**
-             * Flag reflecgin whether Ctrl key is pressed or not,
-             * for folder-like multiselect
-             * @type {Boolean}
-             */
-            _ctrlPressed: false,
-            /**
-             * Updated #_ctrlPressed flag
-             * @param  {Object} event Polymer keyEvent
-             */
-            _updatePressed: function(event) {
-                this._ctrlPressed = event.detail.ctrlKey;
             }
 
         });
