@@ -33,14 +33,15 @@ Or [download as ZIP](https://github.com/Juicy/juicy-dom-tree-view/archive/master
 3. Start using it!
 
     ```html
-    <juicy-dom-tree-view></juicy-dom-tree-view>
+    <juicy-dom-tree-view doc="{{DocumentFragment}}"></juicy-dom-tree-view>
     ```
 
 ## Attributes/Properties
 
-Name     | Options     | Default      | Description
----           | ---         | ---          | ---
-`doc`         | *DocumentFragment*    |        | Document Fragment to be rendered
+Name       | Options               | Default    | Description
+---        | ---                   | ---        | ---
+`doc`      | *DocumentFragment*    |            | Document Fragment to be rendered
+`multiple` | *Boolean*             | `false`    | Should multi select (with ctrl+click) be available
 
 
 ## CSS Custom properties
