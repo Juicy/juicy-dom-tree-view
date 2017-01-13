@@ -11,11 +11,74 @@
 
     <!-- Importing Custom Elements -->
     <link rel="import" href="juicy-dom-tree-view.html">
+
+    <style>
+        .examples{
+            display: flex;
+        }
+        .examples > div{
+            flex:1;
+            padding: 0.5em;
+        }
+        #shadow-host{
+            border: 1px solid lightgrey;
+        }
+    </style>
 </head>
 <body class="markdown-body">
 
-    <!-- Runs custom element -->
-    <juicy-dom-tree-view></juicy-dom-tree-view>
+    <div class="examples">
+        <div>
+            <h3><code>&lt;juicy-dom-tree-view&gt;</code></h3>
+            <!-- Runs custom element -->
+            <juicy-dom-tree-view></juicy-dom-tree-view>
+        </div>
+        <div>
+            <h3><code>&lt;juicy-dom-tree-view multiple&gt;</code></h3>
+            <juicy-dom-tree-view multiple></juicy-dom-tree-view>
+        </div>
+    </div>
+
+    <div class="examples">
+        <div>
+            <h3>Element which Shadow DOM will be displayed in tree</h3>
+            <div id="shadow-host">
+                <p slot="App/0">Some</p>
+                <span slot="App/1">Content</span>
+                <div slot="App/defined-slot-name">
+                    Blah
+                </div>
+            </div>
+        </div>
+        <div>
+            <h3>Shadow DOM code</h3>
+            <pre><code id="shadow-code">
+            </code></pre>
+        </div>
+    </div>
+
+    <script>
+    (function(){
+        let host = document.querySelector('#shadow-host');
+        let tree = document.querySelectorAll('juicy-dom-tree-view');
+
+        let shadow = `<h2>Shadow DOM</h3>
+<div style="display: hidden;">
+    <content select="[slot='App/0']"></content>
+</div>
+<content select="[slot='App/1']"></content>
+<div style="display: flex; justify-content: flex-end;">
+    <content select="[slot='App/defined-slot-name']"></content>
+</div>
+shadow's inline text`;
+        document.querySelector('#shadow-code').innerHTML = shadow.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        let sr = host.createShadowRoot();
+        sr.innerHTML = shadow;
+        Array.prototype.forEach.call(tree, function(tree){
+            tree.doc = sr;
+        });
+    }());
+    </script>
 
 </body>
 </html>

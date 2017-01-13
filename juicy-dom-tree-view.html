@@ -133,8 +133,8 @@ version: 0.0.1
                     } else {
                         this.selectedClones[0] && this.selectedClones[0].classList.remove('selected');
                         tapped.classList.add('selected');
-                        this.splice('selectedElements', 0, tapped._juicyDocumentElement);
-                        this.splice('selectedClones', 0, tapped);
+                        this.splice('selectedElements', 0, 1, tapped._juicyDocumentElement);
+                        this.splice('selectedClones', 0, 1, tapped);
                     }
                 }
             },
