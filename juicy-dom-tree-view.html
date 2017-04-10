@@ -160,10 +160,13 @@ version: 0.0.1
                 }
 
             },
+            /**
+             * Clears selected elements and clones
+             * @return {Array<Array>} [deselectedElements, deselectedClones]
+             */
             clearSelection: function(){
                 removeSelection(this.$.root);
-                this.splice('selectedElements', 0);
-                this.splice('selectedClones', 0);
+                return [this.splice('selectedElements', 0), this.splice('selectedClones', 0)];
             },
             // selectedClonesAddedOrRemoved: function(changeRecord) {
             //   if (changeRecord) {
