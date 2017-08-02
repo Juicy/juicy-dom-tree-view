@@ -4,10 +4,9 @@
 
     <meta charset="utf-8">
     <title>&lt;juicy-dom-tree-view&gt;</title>
-    <link rel="stylesheet" href="http://juicy.github.io/github-markdown-css/github-markdown.css">
 
     <!-- Importing Web Component's Polyfill -->
-    <script src="../webcomponentsjs/webcomponents.js"></script>
+    <script src="../webcomponentsjs/webcomponents-lite.js"></script>
 
     <!-- Importing Custom Elements -->
     <link rel="import" href="juicy-dom-tree-view.html">
@@ -70,17 +69,22 @@
         let host = document.querySelector('#shadow-host');
         let tree = document.querySelectorAll('juicy-dom-tree-view');
 
-        let shadow = `<h2>Shadow DOM</h3>
+        let shadow = `<h2>Shadow DOM</h2>
 <div style="display: hidden;">
-    <content select="[slot='App/0']"></content>
+    <slot name="App/0"></slot>
 </div>
-<content select="[slot='App/1']"></content>
+<slot name="App/1"></slot>
 <div style="display: flex; justify-content: flex-end;" content-wrapper>
-    <content select="[slot='App/defined-slot-name']"></content>
+    <slot name="App/defined-slot-name"></slot>
 </div>
 shadow's inline text`;
         document.querySelector('#shadow-code').innerHTML = shadow.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        let sr = host.createShadowRoot();
+        let sr = null;
+        if (host.attachShadow) {
+            sr = host.attachShadow({ mode: 'open' });
+        } else {
+            sr = host.createShadowRoot();
+        }
         sr.innerHTML = shadow;
         Array.prototype.forEach.call(tree, function(tree){
             tree.doc = sr;
