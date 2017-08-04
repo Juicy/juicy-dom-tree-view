@@ -52,6 +52,9 @@ Name                                         | Description
 ---                                          | ---
 `--juicy-dom-tree-selected-background-color` | Background color of selected element
 
+## Notes
+- `juicy-dom-tree-view` is a [hybrid element](https://www.polymer-project.org/2.0/docs/devguide/hybrid-elements).
+
 ## [Contributing and Development](CONTRIBUTING.md)
 
 ## History
